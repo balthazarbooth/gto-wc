@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WC2026 GTO</title>
+<style>
+:root{--bg:#0a0e14;--card:#121823;--line:#1e2733;--txt:#e7edf5;--mut:#8a97a8;--mut2:#5f6c7d;
+  --go:#10b981;--warn:#f59e0b;--miss:#f43f5e;--draw:#6b7280;--home:#3b82f6;--away:#a855f7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;font-size:15px;line-height:1.4}
+.wrap{max-width:640px;margin:0 auto;padding:14px 12px 60px}
+h1{font-size:19px;font-weight:800;margin-bottom:2px;text-align:center}
+.sub{color:var(--mut);font-size:12px;margin-bottom:14px;text-align:center}
+.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;background:var(--card);
+  border:1px solid var(--line);border-radius:11px;padding:14px;margin:16px 0;text-align:center}
+.totals .v{font-size:24px;font-weight:800}.totals .v.g{color:var(--go)}
+.totals .l{font-size:11px;color:var(--mut)}
+details{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:16px 20px;
+  margin:0 0 18px;font-size:14px;color:var(--mut);line-height:1.6}
+details summary{cursor:pointer;font-weight:700;color:var(--txt);font-size:15px;margin-bottom:8px}
+details ul{margin:8px 0 0 18px;line-height:1.9}
+details li{margin-bottom:4px}
+details code{background:#1a2233;padding:2px 6px;border-radius:4px;font-size:12px}
+details p{margin-top:10px;line-height:1.7}
+.md-hdr{font-size:12px;font-weight:700;color:var(--mut2);letter-spacing:.5px;
+  padding:10px 0 6px;border-bottom:1px solid var(--line);margin:16px 0 8px}
+.row{display:grid;grid-template-columns:56px 1fr 80px 54px;align-items:center;gap:8px;
+  padding:9px 10px;border-radius:9px;margin:0 0 4px;background:var(--card);
+  border:1px solid var(--line);font-size:13px;font-variant-numeric:tabular-nums}
+.row.played{opacity:.85}
+.grp{font-size:11px;font-weight:700;color:var(--mut2)}
+.tag{font-size:10px;font-weight:500;color:var(--mut2)}
+.tag.ctx{color:var(--go)}
+.teams{display:flex;flex-direction:column;gap:1px}
+.tm{display:flex;align-items:center;gap:5px}
+.tm .f{font-size:14px}.tm .n{font-weight:600;font-size:13px}.tm .n.dim{color:var(--mut)}
+.pick{text-align:center;font-weight:700;font-size:15px;border-radius:6px;padding:3px 6px}
+.pick.H{background:#0f2336;color:#3b82f6;border:1px solid #1a3a5c}
+.pick.A{background:#2a1538;color:#a855f7;border:1px solid #4a2068}
+.pick.D{background:#1a1d22;color:#9ca3af;border:1px solid #374151}
+.act{font-size:11px;color:var(--mut);text-align:center;margin-top:1px}
+.pts{text-align:center;font-weight:800;font-size:14px;border-radius:6px;padding:3px 0}
+.pts.p6{color:var(--go)}.pts.p3{color:var(--warn)}.pts.p0{color:var(--miss)}.pts.tbd{color:var(--mut2);font-weight:500;font-size:11px}
+.alarm{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin:0 0 18px}
+.alarm h2{font-size:14px;font-weight:700;margin:0 0 8px;color:var(--warn)}
+.alarm-row{display:grid;grid-template-columns:1fr 70px 60px;align-items:center;gap:8px;
+  padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.alarm-row:last-child{border-bottom:none}
+.alarm-row .match{font-weight:600}.alarm-row .pick-tag{color:var(--mut);font-size:11px}
+.alarm-row input{background:var(--bg);border:1px solid var(--line);border-radius:5px;color:var(--txt);
+  padding:4px 6px;font-size:13px;width:60px;text-align:center;font-variant-numeric:tabular-nums}
+.alarm-row input:focus{outline:none;border-color:var(--warn)}
+.alarm-flag{font-weight:700;font-size:12px;text-align:center}
+.alarm-flag.hot{color:var(--warn)}.alarm-flag.ok{color:var(--mut2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>WC2026 GTO</h1>
+<div id="totals" class="totals"></div>
+<details>
+<summary>Strategy rules (what this does)</summary>
+<ul>
+<li><b>Core:</b> Pick the Elo favorite. Flip to underdog when teams are close (<code>|pH-pA| &lt; 0.15 &amp;&amp; max &lt; 0.66</code>) — 3/3 hits, +12 pts</li>
+<li><b>Scorelines:</b> gap &le;110 → 2-1, 111-230 → 3-1, &gt;230 → 3-0. Upsets always 2-1</li>
+<li><b>Draw override:</b> 1-1 when gap 130-145 and no team &gt;52%. Thin edge (+6/3 events) but doesn't regress</li>
+<li><b>MD3 context:</b> Biscotto (both safe on draw) → 1-1. Dead side (one eliminated) → back live team. Dead rubber (both through) → 1-1</li>
+</ul>
+<p style="margin-top:8px"><b>Backtest (40 matches):</b> 102 pts · 27/40 results (68%) · 7/40 exact (18%)</p>
+<p><b>Key finding:</b> Draw detection rules hurt results — every correct draw costs 1-2 win picks. The group-context layer is the right draw tool for MD3.</p>
+</details>
+<div id="alarm"></div>
+<div id="timeline"></div>
+</div>
+<script>
+function render(data){
+  const T=data.teams;
+  const tot=data.totals;
+  let html='',lastDate='';
+  data.matches.forEach(entry=>{
+    const m=entry.match, pick=entry.prediction, p=entry.points;
+    const isCtx=['biscotto','dead side','dead rubber'].includes(pick.tag);
+    if(m.date!==lastDate){html+=`<div class="md-hdr">${m.date} · MD${m.matchday}</div>`;lastDate=m.date;}
+    const aR=m.played?(m.home_goals>m.away_goals?'H':m.home_goals<m.away_goals?'A':'D'):null;
+    const pc=p!==null?'p'+p:'tbd';
+    html+=`<div class="row${m.played?' played':''}">
+      <div class="grp">G${m.group}<br><span class="tag${isCtx?' ctx':''}">${isCtx?'⇄ ':''}${pick.tag}</span></div>
+      <div class="teams">
+        <div class="tm"><span class="f">${T[m.home].flag}</span><span class="n${m.played&&aR==='A'?' dim':''}">${T[m.home].name}</span></div>
+        <div class="tm"><span class="f">${T[m.away].flag}</span><span class="n${m.played&&aR==='H'?' dim':''}">${T[m.away].name}</span></div>
+      </div>
+      <div><div class="pick ${pick.res}">${pick.hg} - ${pick.ag}</div>${m.played?`<div class="act">FT ${m.home_goals}-${m.away_goals}</div>`:''}</div>
+      <div class="pts ${pc}">${p!==null?p+'pts':'—'}</div>
+    </div>`;
+  });
+  document.getElementById('timeline').innerHTML=html;
+  document.getElementById('totals').innerHTML=`
+    <div><div class="v g">${tot.points}</div><div class="l">points</div></div>
+    <div><div class="v">${tot.results}/${tot.played}</div><div class="l">results (${tot.played?(100*tot.results/tot.played).toFixed(0):0}%)</div></div>
+    <div><div class="v">${tot.exact}/${tot.played}</div><div class="l">exact scores</div></div>`;
+  const alarm=data.alarm||[];
+  if(!alarm.length){document.getElementById('alarm').innerHTML='';return;}
+  let rows='';
+  alarm.forEach(a=>{
+    rows+=`<div class="alarm-row">
+      <div><span class="match">${T[a.home].flag} ${T[a.home].name} vs ${T[a.away].flag} ${T[a.away].name}</span>
+        <span class="pick-tag">G${a.group} ${a.date} · model: ${a.prediction.res} ${a.prediction.hg}-${a.prediction.ag}</span></div>
+      <div style="text-align:center;font-size:12px;color:var(--mut)">${a.draw_dec.toFixed(2)} (${(a.draw_prob*100).toFixed(0)}%)</div>
+      <div class="alarm-flag hot">⚠ DRAW</div>
+    </div>`;
+  });
+  document.getElementById('alarm').innerHTML=`<div class="alarm">
+    <h2>⚠ Draw alarm — live market odds</h2>${rows}
+    <div style="font-size:11px;color:var(--mut2);margin-top:8px">Auto-fetched from bookmaker consensus. ≥33% draw probability → consider 1-1 override.</div>
+  </div>`;
+}
+
+function mergeLive(data,live){
+  if(!live)return;
+  const N=data.names||{};
+  for(const lm of (live.matches||[])){
+    if(lm.status!=='FINISHED'||lm.hg==null)continue;
+    const hk=N[lm.home],ak=N[lm.away];
+    if(!hk||!ak)continue;
+    for(const e of data.matches){
+      const m=e.match;
+      if(m.home===hk&&m.away===ak){m.played=true;m.home_goals=lm.hg;m.away_goals=lm.ag;break;}
+      if(m.home===ak&&m.away===hk){m.played=true;m.home_goals=lm.ag;m.away_goals=lm.hg;break;}
+    }
+  }
+  let pts=0,pl=0,res=0,ex=0;
+  for(const e of data.matches){
+    const m=e.match,pk=e.prediction;
+    if(!m.played){e.points=null;continue;}
+    pl++;
+    const act=m.home_goals>m.away_goals?'H':(m.home_goals<m.away_goals?'A':'D');
+    const sOk=pk.hg===m.home_goals&&pk.ag===m.away_goals;
+    const rOk=pk.res===act;
+    e.points=sOk?6:(rOk?3:0);
+    pts+=e.points;if(rOk)res++;if(sOk)ex++;
+  }
+  data.totals={points:pts,played:pl,results:res,exact:ex};
+}
+
+function buildAlarm(data,live){
+  if(!live)return data.alarm||[];
+  const N=data.names||{},odds=live.odds||[],alarm=[];
+  for(const e of data.matches){
+    const m=e.match,pk=e.prediction;
+    if(m.played||pk.res==='D')continue;
+    let o=null;
+    for(const od of odds){
+      const oh=N[od.home],oa=N[od.away];
+      if((oh===m.home&&oa===m.away)||(oh===m.away&&oa===m.home)){o=od;break;}
+    }
+    if(!o)continue;
+    const v=o.drawOdds,dP=v>0?100/(v+100):-v/(-v+100);
+    if(dP<0.33)continue;
+    const dD=v>0?1+v/100:1+100/(-v);
+    alarm.push({home:m.home,away:m.away,group:m.group,date:m.date,prediction:pk,draw_prob:dP,draw_dec:dD});
+  }
+  return alarm;
+}
+
+let DATA=null;
+async function refresh(){
+  try{
+    const live=await fetch(DATA.worker).then(r=>r.json());
+    mergeLive(DATA,live);
+    DATA.alarm=buildAlarm(DATA,live);
+  }catch(e){}
+  render(DATA);
+}
+
+fetch('predictions.json').then(r=>r.json()).then(d=>{
+  DATA=d;
+  render(d);
+  refresh();
+  setInterval(refresh,60000);
+}).catch(e=>document.getElementById('timeline').innerHTML='<p style="color:var(--miss)">Failed to load predictions.json — run <code>python3 predict.py</code> first.</p>');
+</script>
+</body>
+</html>
