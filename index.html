@@ -12,10 +12,11 @@ body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;font
 .wrap{max-width:640px;margin:0 auto;padding:14px 12px 60px}
 h1{font-size:19px;font-weight:800;margin-bottom:2px;text-align:center}
 .sub{color:var(--mut);font-size:12px;margin-bottom:14px;text-align:center}
-.totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;background:var(--card);
-  border:1px solid var(--line);border-radius:11px;padding:14px;margin:16px 0;text-align:center}
-.totals .v{font-size:24px;font-weight:800}.totals .v.g{color:var(--go)}
-.totals .l{font-size:11px;color:var(--mut)}
+.totals{position:fixed;left:0;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:12px;background:var(--card);
+  border:1px solid var(--line);border-radius:0 10px 10px 0;padding:14px 12px;text-align:center;z-index:10}
+.totals .v{font-size:20px;font-weight:800}.totals .v.g{color:var(--go)}
+.totals .l{font-size:10px;color:var(--mut)}
 details{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:16px 20px;
   margin:0 0 18px;font-size:14px;color:var(--mut);line-height:1.6}
 details summary{cursor:pointer;font-weight:700;color:var(--txt);font-size:15px;margin-bottom:8px}
@@ -42,6 +43,10 @@ details p{margin-top:10px;line-height:1.7}
 .act{font-size:11px;color:var(--mut);text-align:center;margin-top:1px}
 .pts{text-align:center;font-weight:800;font-size:14px;border-radius:6px;padding:3px 0}
 .pts.p6{color:var(--go)}.pts.p3{color:var(--warn)}.pts.p0{color:var(--miss)}.pts.tbd{color:var(--mut2);font-weight:500;font-size:11px}
+.live-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:var(--go)}
+.live-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--go);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.row.live{border-color:#10b98140}
 .alarm{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin:0 0 18px}
 .alarm h2{font-size:14px;font-weight:700;margin:0 0 8px;color:var(--warn)}
 .alarm-row{display:grid;grid-template-columns:1fr 70px 60px;align-items:center;gap:8px;
@@ -53,12 +58,16 @@ details p{margin-top:10px;line-height:1.7}
 .alarm-row input:focus{outline:none;border-color:var(--warn)}
 .alarm-flag{font-weight:700;font-size:12px;text-align:center}
 .alarm-flag.hot{color:var(--warn)}.alarm-flag.ok{color:var(--mut2)}
+.today-btn{position:fixed;bottom:16px;right:16px;background:var(--go);color:#000;border:none;
+  border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 8px #0004;z-index:10}
+.today-btn:active{opacity:.8}
 </style>
 </head>
 <body>
+<div id="totals" class="totals"></div>
 <div class="wrap">
 <h1>WC2026 GTO</h1>
-<div id="totals" class="totals"></div>
 <details>
 <summary>Strategy rules (what this does)</summary>
 <ul>
@@ -72,25 +81,34 @@ details p{margin-top:10px;line-height:1.7}
 </details>
 <div id="alarm"></div>
 <div id="timeline"></div>
+<button class="today-btn" onclick="scrollToNext()">▼ Today</button>
 </div>
 <script>
+function scrollToNext(){
+  const el=document.getElementById('next-match');
+  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
 function render(data){
   const T=data.teams;
   const tot=data.totals;
-  let html='',lastDate='';
+  let html='',lastDate='',nextMarked=false;
   data.matches.forEach(entry=>{
     const m=entry.match, pick=entry.prediction, p=entry.points;
     const isCtx=['biscotto','dead side','dead rubber'].includes(pick.tag);
     if(m.date!==lastDate){html+=`<div class="md-hdr">${m.date} · MD${m.matchday}</div>`;lastDate=m.date;}
-    const aR=m.played?(m.home_goals>m.away_goals?'H':m.home_goals<m.away_goals?'A':'D'):null;
+    const hasScore=m.played||m.live;
+    const aR=hasScore?(m.home_goals>m.away_goals?'H':m.home_goals<m.away_goals?'A':'D'):null;
     const pc=p!==null?'p'+p:'tbd';
-    html+=`<div class="row${m.played?' played':''}">
+    const scoreLabel=m.live?`<div class="act"><span class="live-tag">LIVE</span> ${m.home_goals}-${m.away_goals}</div>`
+      :m.played?`<div class="act">FT ${m.home_goals}-${m.away_goals}</div>`:'';
+    const nid=(!m.played&&!nextMarked)?(nextMarked=true,' id="next-match"'):'';
+    html+=`<div class="row${m.played?' played':''}${m.live?' live':''}"${nid}>
       <div class="grp">G${m.group}<br><span class="tag${isCtx?' ctx':''}">${isCtx?'⇄ ':''}${pick.tag}</span></div>
       <div class="teams">
-        <div class="tm"><span class="f">${T[m.home].flag}</span><span class="n${m.played&&aR==='A'?' dim':''}">${T[m.home].name}</span></div>
-        <div class="tm"><span class="f">${T[m.away].flag}</span><span class="n${m.played&&aR==='H'?' dim':''}">${T[m.away].name}</span></div>
+        <div class="tm"><span class="f">${T[m.home].flag}</span><span class="n${hasScore&&aR==='A'?' dim':''}">${T[m.home].name}</span></div>
+        <div class="tm"><span class="f">${T[m.away].flag}</span><span class="n${hasScore&&aR==='H'?' dim':''}">${T[m.away].name}</span></div>
       </div>
-      <div><div class="pick ${pick.res}">${pick.hg} - ${pick.ag}</div>${m.played?`<div class="act">FT ${m.home_goals}-${m.away_goals}</div>`:''}</div>
+      <div><div class="pick ${pick.res}">${pick.hg} - ${pick.ag}</div>${scoreLabel}</div>
       <div class="pts ${pc}">${p!==null?p+'pts':'—'}</div>
     </div>`;
   });
@@ -120,13 +138,15 @@ function mergeLive(data,live){
   if(!live)return;
   const N=data.names||{};
   for(const lm of (live.matches||[])){
-    if(lm.status!=='FINISHED'||lm.hg==null)continue;
+    const isLive=lm.status==='IN_PLAY'||lm.status==='PAUSED';
+    if(lm.status!=='FINISHED'&&!isLive)continue;
+    if(lm.hg==null)continue;
     const hk=N[lm.home],ak=N[lm.away];
     if(!hk||!ak)continue;
     for(const e of data.matches){
       const m=e.match;
-      if(m.home===hk&&m.away===ak){m.played=true;m.home_goals=lm.hg;m.away_goals=lm.ag;break;}
-      if(m.home===ak&&m.away===hk){m.played=true;m.home_goals=lm.ag;m.away_goals=lm.hg;break;}
+      if(m.home===hk&&m.away===ak){m.played=!isLive;m.live=isLive;m.home_goals=lm.hg;m.away_goals=lm.ag;break;}
+      if(m.home===ak&&m.away===hk){m.played=!isLive;m.live=isLive;m.home_goals=lm.ag;m.away_goals=lm.hg;break;}
     }
   }
   let pts=0,pl=0,res=0,ex=0;
@@ -176,6 +196,7 @@ async function refresh(){
 fetch('predictions.json').then(r=>r.json()).then(d=>{
   DATA=d;
   render(d);
+  scrollToNext();
   refresh();
   setInterval(refresh,60000);
 }).catch(e=>document.getElementById('timeline').innerHTML='<p style="color:var(--miss)">Failed to load predictions.json — run <code>python3 predict.py</code> first.</p>');

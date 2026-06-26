@@ -1056,7 +1056,9 @@
         "date": "Jun 23",
         "home": "COL",
         "away": "COD",
-        "played": false
+        "played": true,
+        "home_goals": 1,
+        "away_goals": 0
       },
       "prediction": {
         "res": "H",
@@ -1064,7 +1066,7 @@
         "ag": 1,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1073,7 +1075,9 @@
         "date": "Jun 23",
         "home": "ENG",
         "away": "GHA",
-        "played": false
+        "played": true,
+        "home_goals": 0,
+        "away_goals": 0
       },
       "prediction": {
         "res": "H",
@@ -1081,7 +1085,7 @@
         "ag": 0,
         "tag": "elo"
       },
-      "points": null
+      "points": 0
     },
     {
       "match": {
@@ -1090,7 +1094,9 @@
         "date": "Jun 23",
         "home": "PAN",
         "away": "CRO",
-        "played": false
+        "played": true,
+        "home_goals": 0,
+        "away_goals": 1
       },
       "prediction": {
         "res": "A",
@@ -1098,7 +1104,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1107,7 +1113,9 @@
         "date": "Jun 24",
         "home": "CZE",
         "away": "MEX",
-        "played": false
+        "played": true,
+        "home_goals": 0,
+        "away_goals": 3
       },
       "prediction": {
         "res": "A",
@@ -1115,7 +1123,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1124,7 +1132,9 @@
         "date": "Jun 24",
         "home": "RSA",
         "away": "KOR",
-        "played": false
+        "played": true,
+        "home_goals": 1,
+        "away_goals": 0
       },
       "prediction": {
         "res": "A",
@@ -1132,7 +1142,7 @@
         "ag": 2,
         "tag": "elo"
       },
-      "points": null
+      "points": 0
     },
     {
       "match": {
@@ -1141,15 +1151,17 @@
         "date": "Jun 24",
         "home": "SUI",
         "away": "CAN",
-        "played": false
+        "played": true,
+        "home_goals": 2,
+        "away_goals": 1
       },
       "prediction": {
-        "res": "D",
-        "hg": 1,
+        "res": "H",
+        "hg": 2,
         "ag": 1,
-        "tag": "biscotto"
+        "tag": "upset"
       },
-      "points": null
+      "points": 6
     },
     {
       "match": {
@@ -1158,7 +1170,9 @@
         "date": "Jun 24",
         "home": "BIH",
         "away": "QAT",
-        "played": false
+        "played": true,
+        "home_goals": 3,
+        "away_goals": 1
       },
       "prediction": {
         "res": "H",
@@ -1166,7 +1180,7 @@
         "ag": 1,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1175,7 +1189,9 @@
         "date": "Jun 24",
         "home": "SCO",
         "away": "BRA",
-        "played": false
+        "played": true,
+        "home_goals": 0,
+        "away_goals": 3
       },
       "prediction": {
         "res": "A",
@@ -1183,7 +1199,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 6
     },
     {
       "match": {
@@ -1192,7 +1208,9 @@
         "date": "Jun 24",
         "home": "MAR",
         "away": "HAI",
-        "played": false
+        "played": true,
+        "home_goals": 4,
+        "away_goals": 2
       },
       "prediction": {
         "res": "H",
@@ -1200,7 +1218,7 @@
         "ag": 0,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1209,7 +1227,9 @@
         "date": "Jun 25",
         "home": "TUR",
         "away": "USA",
-        "played": false
+        "played": true,
+        "home_goals": 3,
+        "away_goals": 2
       },
       "prediction": {
         "res": "A",
@@ -1217,7 +1237,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 0
     },
     {
       "match": {
@@ -1226,7 +1246,9 @@
         "date": "Jun 25",
         "home": "PAR",
         "away": "AUS",
-        "played": false
+        "played": true,
+        "home_goals": 0,
+        "away_goals": 0
       },
       "prediction": {
         "res": "H",
@@ -1234,7 +1256,7 @@
         "ag": 1,
         "tag": "upset"
       },
-      "points": null
+      "points": 0
     },
     {
       "match": {
@@ -1243,7 +1265,9 @@
         "date": "Jun 25",
         "home": "ECU",
         "away": "GER",
-        "played": false
+        "played": true,
+        "home_goals": 2,
+        "away_goals": 1
       },
       "prediction": {
         "res": "A",
@@ -1251,7 +1275,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 0
     },
     {
       "match": {
@@ -1260,7 +1284,9 @@
         "date": "Jun 25",
         "home": "CUW",
         "away": "CIV",
-        "played": false
+        "played": true,
+        "home_goals": 0,
+        "away_goals": 2
       },
       "prediction": {
         "res": "A",
@@ -1268,7 +1294,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1277,7 +1303,9 @@
         "date": "Jun 25",
         "home": "JPN",
         "away": "SWE",
-        "played": false
+        "played": true,
+        "home_goals": 1,
+        "away_goals": 1
       },
       "prediction": {
         "res": "H",
@@ -1285,7 +1313,7 @@
         "ag": 1,
         "tag": "elo"
       },
-      "points": null
+      "points": 0
     },
     {
       "match": {
@@ -1294,7 +1322,9 @@
         "date": "Jun 25",
         "home": "TUN",
         "away": "NED",
-        "played": false
+        "played": true,
+        "home_goals": 1,
+        "away_goals": 3
       },
       "prediction": {
         "res": "A",
@@ -1302,7 +1332,7 @@
         "ag": 3,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1450,10 +1480,10 @@
         "played": false
       },
       "prediction": {
-        "res": "H",
-        "hg": 2,
+        "res": "D",
+        "hg": 1,
         "ag": 1,
-        "tag": "upset"
+        "tag": "biscotto"
       },
       "points": null
     },
@@ -1502,7 +1532,7 @@
       },
       "prediction": {
         "res": "H",
-        "hg": 3,
+        "hg": 2,
         "ag": 1,
         "tag": "elo"
       },
@@ -1510,55 +1540,12 @@
     }
   ],
   "totals": {
-    "points": 120,
-    "played": 45,
-    "results": 32,
-    "exact": 8
+    "points": 153,
+    "played": 60,
+    "results": 41,
+    "exact": 10
   },
-  "alarm": [
-    {
-      "home": "PAR",
-      "away": "AUS",
-      "group": "D",
-      "date": "Jun 25",
-      "prediction": {
-        "res": "H",
-        "hg": 2,
-        "ag": 1,
-        "tag": "upset"
-      },
-      "draw_prob": 0.433,
-      "draw_dec": 2.31
-    },
-    {
-      "home": "EGY",
-      "away": "IRN",
-      "group": "G",
-      "date": "Jun 26",
-      "prediction": {
-        "res": "A",
-        "hg": 1,
-        "ag": 2,
-        "tag": "upset"
-      },
-      "draw_prob": 0.36,
-      "draw_dec": 2.78
-    },
-    {
-      "home": "ALG",
-      "away": "AUT",
-      "group": "J",
-      "date": "Jun 27",
-      "prediction": {
-        "res": "H",
-        "hg": 2,
-        "ag": 1,
-        "tag": "upset"
-      },
-      "draw_prob": 0.417,
-      "draw_dec": 2.4
-    }
-  ],
+  "alarm": [],
   "names": {
     "Mexico": "MEX",
     "South Korea": "KOR",
