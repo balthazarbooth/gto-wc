@@ -1409,15 +1409,17 @@
         "date": "Jun 26",
         "home": "NOR",
         "away": "FRA",
-        "played": false
+        "played": true,
+        "home_goals": 1,
+        "away_goals": 4
       },
       "prediction": {
-        "res": "D",
+        "res": "A",
         "hg": 1,
-        "ag": 1,
-        "tag": "biscotto"
+        "ag": 3,
+        "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1426,7 +1428,9 @@
         "date": "Jun 26",
         "home": "SEN",
         "away": "IRQ",
-        "played": false
+        "played": true,
+        "home_goals": 5,
+        "away_goals": 0
       },
       "prediction": {
         "res": "H",
@@ -1434,7 +1438,7 @@
         "ag": 1,
         "tag": "elo"
       },
-      "points": null
+      "points": 3
     },
     {
       "match": {
@@ -1480,10 +1484,10 @@
         "played": false
       },
       "prediction": {
-        "res": "D",
-        "hg": 1,
+        "res": "H",
+        "hg": 2,
         "ag": 1,
-        "tag": "biscotto"
+        "tag": "upset"
       },
       "points": null
     },
@@ -1540,12 +1544,41 @@
     }
   ],
   "totals": {
-    "points": 153,
-    "played": 60,
-    "results": 41,
+    "points": 159,
+    "played": 62,
+    "results": 43,
     "exact": 10
   },
-  "alarm": [],
+  "alarm": [
+    {
+      "home": "EGY",
+      "away": "IRN",
+      "group": "G",
+      "date": "Jun 26",
+      "prediction": {
+        "res": "A",
+        "hg": 1,
+        "ag": 2,
+        "tag": "upset"
+      },
+      "draw_prob": 0.361,
+      "draw_dec": 2.77
+    },
+    {
+      "home": "ALG",
+      "away": "AUT",
+      "group": "J",
+      "date": "Jun 27",
+      "prediction": {
+        "res": "H",
+        "hg": 2,
+        "ag": 1,
+        "tag": "upset"
+      },
+      "draw_prob": 0.435,
+      "draw_dec": 2.3
+    }
+  ],
   "names": {
     "Mexico": "MEX",
     "South Korea": "KOR",

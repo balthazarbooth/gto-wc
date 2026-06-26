@@ -80,7 +80,7 @@ details p{margin-top:10px;line-height:1.7}
 <li><b>Core:</b> Pick the Elo favorite. Flip to underdog when teams are close (<code>|pH-pA| &lt; 0.15 &amp;&amp; max &lt; 0.66</code>) — 3/3 hits, +12 pts</li>
 <li><b>Scorelines:</b> gap &le;110 → 2-1, 111-230 → 3-1, &gt;230 → 3-0. Upsets always 2-1</li>
 <li><b>Draw override:</b> 1-1 when gap 130-145 and no team &gt;52%. Thin edge (+6/3 events) but doesn't regress</li>
-<li><b>MD3 context:</b> Biscotto (both safe on draw) → 1-1. Dead side (one eliminated) → back live team. Dead rubber (both through) → 1-1</li>
+<li><b>Odds draw:</b> Override to 1-1 when market draw &lt;3.40 AND (both teams &lt;3.0 OR U2.5&le;1.65)</li>
 </ul>
 <p style="margin-top:8px"><b>Backtest (40 matches):</b> 102 pts · 27/40 results (68%) · 7/40 exact (18%)</p>
 <p><b>Key finding:</b> Draw detection rules hurt results — every correct draw costs 1-2 win picks. The group-context layer is the right draw tool for MD3.</p>
@@ -100,7 +100,7 @@ function render(data){
   let html='',lastDate='',nextMarked=false;
   data.matches.forEach(entry=>{
     const m=entry.match, pick=entry.prediction, p=entry.points;
-    const isCtx=['biscotto','dead side','dead rubber'].includes(pick.tag);
+    const isCtx=pick.tag==='odds draw';
     if(m.date!==lastDate){html+=`<div class="md-hdr">${m.date} · MD${m.matchday}</div>`;lastDate=m.date;}
     const hasScore=m.played||m.live;
     const aR=hasScore?(m.home_goals>m.away_goals?'H':m.home_goals<m.away_goals?'A':'D'):null;
@@ -169,6 +169,28 @@ function mergeLive(data,live){
   data.totals={points:pts,played:pl,results:res,exact:ex};
 }
 
+function aDec(v){return v>0?1+v/100:1+100/(-v);}
+
+function applyOddsDraws(data,live){
+  if(!live)return;
+  const N=data.names||{},odds=live.odds||[];
+  for(const e of data.matches){
+    const m=e.match,pk=e.prediction;
+    if(m.played||m.live||pk.res==='D')continue;
+    let o=null;
+    for(const od of odds){
+      const oh=N[od.home],oa=N[od.away];
+      if((oh===m.home&&oa===m.away)||(oh===m.away&&oa===m.home)){o=od;break;}
+    }
+    if(!o)continue;
+    const hD=aDec(o.homeOdds),aD=aDec(o.awayOdds),dD=aDec(o.drawOdds);
+    const even=hD<3&&aD<3, low=((o.u25Dec||99)<=1.65);
+    if(dD<3.4&&(even||low)){
+      e.prediction={res:'D',hg:1,ag:1,tag:'odds draw'};
+    }
+  }
+}
+
 function buildAlarm(data,live){
   if(!live)return data.alarm||[];
   const N=data.names||{},odds=live.odds||[],alarm=[];
@@ -183,7 +205,7 @@ function buildAlarm(data,live){
     if(!o)continue;
     const v=o.drawOdds,dP=v>0?100/(v+100):-v/(-v+100);
     if(dP<0.33)continue;
-    const dD=v>0?1+v/100:1+100/(-v);
+    const dD=aDec(v);
     alarm.push({home:m.home,away:m.away,group:m.group,date:m.date,prediction:pk,draw_prob:dP,draw_dec:dD});
   }
   return alarm;
@@ -194,6 +216,7 @@ async function refresh(){
   try{
     const live=await fetch(DATA.worker).then(r=>r.json());
     mergeLive(DATA,live);
+    applyOddsDraws(DATA,live);
     DATA.alarm=buildAlarm(DATA,live);
   }catch(e){}
   render(DATA);

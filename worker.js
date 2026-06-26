@@ -28,7 +28,7 @@ export default {
     }
 
     const cache    = caches.default;
-    const cacheKey = new Request(API_URL + '?v=2');
+    const cacheKey = new Request(API_URL + '?v=4');
     const cached   = await cache.match(cacheKey);
     if (cached) {
       const body = await cached.text();
@@ -36,7 +36,7 @@ export default {
     }
 
     const oddsKey = env.ODDS_API_KEY || '';
-    const oddsUrl = `https://api.the-odds-api.com/v4/sports/${ODDS_SPORT}/odds/?apiKey=${oddsKey}&regions=us&markets=h2h&oddsFormat=american`;
+    const oddsUrl = `https://api.the-odds-api.com/v4/sports/${ODDS_SPORT}/odds/?apiKey=${oddsKey}&regions=us&markets=h2h,totals&oddsFormat=american`;
 
     // Fetch results and odds in parallel
     const [apiRes, oddsRes] = await Promise.allSettled([
@@ -77,22 +77,31 @@ export default {
       const oddsRaw = await oddsRes.value.json();
       slim.odds = (oddsRaw || []).map(ev => {
         const toProb = v => v > 0 ? 100/(v+100) : -v/(-v+100);
+        const toDec = v => v > 0 ? 1 + v/100 : 1 + 100/(-v);
         let sumH = 0, sumD = 0, sumA = 0, n = 0;
+        let sumU25 = 0, nU25 = 0;
         for (const bm of (ev.bookmakers || [])) {
           const mk = bm.markets?.find(m => m.key === 'h2h');
-          if (!mk) continue;
-          const prices = {};
-          mk.outcomes.forEach(o => { prices[o.name] = o.price; });
-          const h = prices[ev.home_team], d = prices['Draw'], a = prices[ev.away_team];
-          if (h == null || d == null || a == null) continue;
-          const pH = toProb(h), pD = toProb(d), pA = toProb(a);
-          const s = pH + pD + pA;
-          sumH += pH/s; sumD += pD/s; sumA += pA/s; n++;
+          if (mk) {
+            const prices = {};
+            mk.outcomes.forEach(o => { prices[o.name] = o.price; });
+            const h = prices[ev.home_team], d = prices['Draw'], a = prices[ev.away_team];
+            if (h != null && d != null && a != null) {
+              const pH = toProb(h), pD = toProb(d), pA = toProb(a);
+              const s = pH + pD + pA;
+              sumH += pH/s; sumD += pD/s; sumA += pA/s; n++;
+            }
+          }
+          const tot = bm.markets?.find(m => m.key === 'totals');
+          if (tot) {
+            const u = tot.outcomes?.find(o => o.name === 'Under' && o.point === 2.5);
+            if (u) { sumU25 += toDec(u.price); nU25++; }
+          }
         }
         if (!n) return null;
         const avgH = sumH/n, avgD = sumD/n, avgA = sumA/n;
         const toAmer = p => p >= 0.5 ? Math.round(-p/(1-p)*100) : Math.round((1-p)/p*100);
-        return {
+        const out = {
           home: ev.home_team,
           away: ev.away_team,
           bookmaker: `consensus (${n})`,
@@ -101,6 +110,8 @@ export default {
           awayOdds: toAmer(avgA),
           commence: ev.commence_time,
         };
+        if (nU25) out.u25Dec = Math.round(sumU25/nU25 * 100) / 100;
+        return out;
       }).filter(Boolean);
     }
 
